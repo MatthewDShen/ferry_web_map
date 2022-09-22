@@ -1,193 +1,161 @@
-//Create inital variables
-var mapCenter = [-96,37]
-var aircraft_range = 0
+// Create inital variables
+var mapCenter = [-73.99,40.75] // Map center locations
 
-//Setting up Mabox GL & map
-mapboxgl.accessToken = 'pk.eyJ1IjoiY3dob25nIiwiYSI6IjAyYzIwYTJjYTVhMzUxZTVkMzdmYTQ2YzBmMTM0ZDAyIn0.owNd_Qa7Sw2neNJbK6zc1A'
-var map = new mapboxgl.Map({
-  container: 'mapContainer',
-  style: 'mapbox://styles/mapbox/dark-v10',
-  center: mapCenter,
-  zoom: 3.5,
-});
+const bounds = [ // maximum bounds of map
+    [-74.2, 40.4], // Southwest coordinates
+    [-73.6, 41] // Northeast coordinates
+    ];
 
-// Get Airport Data & Create Dropdown
-var airport_data = $.getJSON('data/all-airport-data.json', function(airport_data){
-    for (var i = 0; i < airport_data.length; i++) {
-        let latlng = [airport_data[i]['Latitude'],airport_data[i]['Longitude']]
-        $('#sel').append('<option value=' + latlng + '>'
-         + airport_data[i]['LocID'] + '</option>');
-    }
-    return airport_data
-});
+//Setting up Mapbox GL & map
+mapboxgl.accessToken = 'pk.eyJ1IjoiY3dob25nIiwiYSI6IjAyYzIwYTJjYTVhMzUxZTVkMzdmYTQ2YzBmMTM0ZDAyIn0.owNd_Qa7Sw2neNJbK6zc1A' // MapboxGL token
 
+    const map = new mapboxgl.Map({ // Create map
+        container: 'map', // Assign container
+        style: 'mapbox://styles/mapbox/dark-v10', // Map style
+        center: mapCenter, // Set center of map
+        zoom: 11, // Set zoom distance
+        maxBounds: bounds // Set the map's geographical boundaries.
+    });
 
-// Add/Change Marker & Range based on input
+    map.on('load', () => { // When map is loaded run the following functions
 
-// Setup for logical statement to see if first marker
-var update_marker = 'FALSE'
+        map.addSource('stops', { // Load stops data
+            type: 'geojson',
+            data: 'data/stops.geojson'
+        })
 
-// Looks for changes in dropdown bar
-$('#sel').change(function(){
-    // If this is the first marker being placed
-    if (update_marker == 'FALSE') {
-
-        // Gets coordinates of first marker
-        var coords = $('#sel').val().split(',').map(Number);
-        coords = coords.reverse();
-
-        // Places marker down and range cirlce
-        start_marker = setMarkerAndRange(coords,aircraft_range)
-
-
-        // Fly to marker
-        zoomFunc(coords,aircraft_range);
-
-        // Adjusts range cirlce if there is change in requested range
-        $('#range').change(function(){
-            map.removeLayer('polygon');
-            map.removeSource('polygon');
-            aircraft_range = $('#range').val();
-
-            map.addSource("polygon", createGeoJSONCircle(coords,aircraft_range));
-
-            map.addLayer({
-                "id": "polygon",
-                "type": "fill",
-                "source": "polygon",
-                "layout": {},
-                "paint": {
-                    "fill-color": "#57068C",
-                    "fill-opacity": 0.6
+        map.addLayer({ // Add stops data to map
+            'id': 'stops-layer',
+            'type': 'circle',
+            'source': 'stops',
+            'paint': { // Style of stops
+                'circle-color': '#B31B1B',
+                'circle-radius': 5,
+                'circle-stroke-width': 2,
+                'circle-stroke-color': '#ffffff'
                 }
             });
 
-            zoomFunc(coords,aircraft_range);
+        map.addSource('routes', { // Add routes data
+            type: 'geojson',
+            data: 'data/routes.geojson'
+        })
+
+        map.addLayer({ // Load routes data into map
+            'id': 'routes-layer',
+            'type': 'line',
+            'source': 'routes',
+            'paint': { // Change color of routes based on route name
+                'line-color': [
+                    'match',
+                    ['get', 'route_name'],
+                    'AS','#FF6900',
+                    'ER','#228B9D',
+                    'RW','#AD1AAC',
+                    'SB','#fdd100',
+                    'SG','#D7006E',
+                    'SV','#4E008E',
+                    '#ccc'
+
+                ],
+                'line-width': 3
+            }
         });
 
-        update_marker = 'TRUE'
-        return start_marker
+        const popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false
+        });
 
-    }
-    // When you are updating the marker
-    else{
+        map.on('mouseenter', 'stops-layer', function(e) {
+            // Change the cursor style as a UI indicator.
+              map.getCanvas().style.cursor = 'pointer';
+            
+            // Get data from geojson
+            const coordinates = e.features[0].geometry.coordinates.slice();
+            const name = e.features[0].properties.stop_name;
 
-        // Removes initial marker and range map
-        start_marker.remove();
-        map.removeLayer('polygon');
-        map.removeSource('polygon');
 
-        //Gets coordinates of new airport
-        coords = $('#sel').val().split(',').map(Number);
-        coords = coords.reverse();
+            // Ensure that if the map is zoomed out such that multiple
+            // copies of the feature are visible, the popup appears
+            // over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
 
-        //Sets marker and range circle
-        start_marker = setMarkerAndRange(coords,aircraft_range)
+            var popupContent = `
+                <strong>Name: </strong>${name}
+                `
+            
+            // Populate the popup and set its coordinates
+            // based on the feature found.
+            popup.setLngLat(coordinates).setHTML(popupContent).addTo(map);
 
-        // Fly to marker
-        zoomFunc(coords,aircraft_range);
+        });
 
-        // Adjusts range cirlce if there is change in requested range
-        $('#range').change(function(){
-            map.removeLayer('polygon');
-            map.removeSource('polygon');
-            aircraft_range = $('#range').val();
+        map.on('mouseenter', 'routes-layer', function(e) {
+            // Change the cursor style as a UI indicator.
+              map.getCanvas().style.cursor = 'pointer';
+            
+            // Get data from geojson
+            const coordinates = e.features[0].geometry.coordinates.slice();
+            const name = e.features[0].properties.stop_name;
 
-            map.addSource("polygon", createGeoJSONCircle(coords,aircraft_range));
 
-            map.addLayer({
-                "id": "polygon",
-                "type": "fill",
-                "source": "polygon",
-                "layout": {},
-                "paint": {
-                    "fill-color": "#57068C",
-                    "fill-opacity": 0.6
-                }
-            });
+            // Ensure that if the map is zoomed out such that multiple
+            // copies of the feature are visible, the popup appears
+            // over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
 
-            zoomFunc(coords,aircraft_range);
+            var popupContent = `
+                <strong>Name: </strong>${name}
+                `
+            
+            // Populate the popup and set its coordinates
+            // based on the feature found.
+            popup.setLngLat(coordinates).setHTML(popupContent).addTo(map);
+
         });
 
 
-        return start_marker
 
-    }
-})
+        map.on('mouseleave', 'stops-layer', function() {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
 
-//Function to set marker for airport and range cirlce
-var setMarkerAndRange = function(coords,aircraft_range){
-
-    const start_marker = new mapboxgl.Marker()
-        .setLngLat(coords)
-        .addTo(map);
-
-
-
-    aircraft_range = $('#range').val();
-
-    map.addSource("polygon", createGeoJSONCircle(coords,aircraft_range));
-
-    map.addLayer({
-        "id": "polygon",
-        "type": "fill",
-        "source": "polygon",
-        "layout": {},
-        "paint": {
-            "fill-color": "#57068C",
-            "fill-opacity": 0.6
-        }
+        map.on('mouseleave', 'routes-layer', function() {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
     });
 
-    return start_marker
 
-
-};
-
-// Function to set zoom
-var zoomFunc = function(coords){
-    map.flyTo({
-        center: coords,
-        zoom: 10
-    });
-};
-
-//Function to create cirlce
-var createGeoJSONCircle = function(center, radiusInKm, points) {
-    if(!points) points = 64;
-
-    var coords = {
-        latitude: center[1],
-        longitude: center[0]
-    };
-
-    var km = radiusInKm;
-
-    var ret = [];
-    var distanceX = km/(111.320*Math.cos(coords.latitude*Math.PI/180));
-    var distanceY = km/110.574;
-
-    var theta, x, y;
-    for(var i=0; i<points; i++) {
-        theta = (i/points)*(2*Math.PI);
-        x = distanceX*Math.cos(theta);
-        y = distanceY*Math.sin(theta);
-
-        ret.push([coords.longitude+x, coords.latitude+y]);
-    }
-    ret.push(ret[0]);
-
+async function getLocation(updateSource) {
+    // Make a GET request to the API and return the location of the ISS.
+    try {
+        const response = await fetch(
+            'http://nycferry.connexionz.net/rtt/public/utility/gtfsrealtime.aspx/tripupdate',
+            { method: 'GET' }
+    );
+    const { latitude, longitude } = await response.json();
+    
+    // Return the location of the ISS as GeoJSON.
     return {
-        "type": "geojson",
-        "data": {
-            "type": "FeatureCollection",
-            "features": [{
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [ret]
-                }
-            }]
-        }
+        'type': 'FeatureCollection',
+        'features': [{
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [longitude, latitude]
+            }
+        }]
     };
-};
+    } catch (err) {
+    // If the updateSource interval is defined, clear the interval to stop updating the source.
+    if (updateSource) clearInterval(updateSource);
+    throw new Error(err);
+    }
+}

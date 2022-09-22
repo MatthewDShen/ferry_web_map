@@ -1,119 +1,28 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Real Time NYC Ferry Map</title>
 
-  <title>NYC Ferry Real-Time Map </title>
+    <!-- Imports CSS-->
+    <link rel="stylesheet" href="/css/style.css"> <!--Import style sheet-->
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css' rel='stylesheet' /> <!--Import mapboxGL stylesheet-->
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/site.webmanifest">
-  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-  <meta name="msapplication-TileColor" content="#da532c">
-  <meta name="theme-color" content="#ffffff">
-  <!-- CSS Links -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-  <link href='https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css' rel='stylesheet' />
-  <link rel="stylesheet" href="css/styles.css">
+  </head>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
+  <body>
+    
+    
+    <div id='map'></div>
 
-<body>
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark " style="background-color:#5e5e5e;border-bottom: 1px solid #5e5e5e;">
-    <!-- Container wrapper -->
-    <div class="container-fluid">
-
-      <!-- Navbar brand -->
-      <a class="navbar-brand" href="#"><i class="fa-solid fa-plane-departure"></i> Tools for Pilots</a>
-
-      <!-- Toggle button -->
-      <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="fas fa-bars"></i>
-      </button>
-
-      <!-- Collapsible wrapper -->
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <!-- Link -->
-        </ul>
-
-        <!-- Icons (these will show up on the right) -->
-        <ul class="navbar-nav d-flex flex-row me-1">
-          <li class="nav-item me-3 me-lg-0">
-            <a class="nav-link" href="https://github.com/MatthewDShen/URPL-GP-4560-Final-Project"><i class="fab fa-github"></i></a>
-          </li>
-        </ul>
-
-      </div>
-    </div>
-    <!-- Container wrapper -->
-  </nav>
-  <!-- Navbar -->
-
-  <!-- Left/Side Bar Content -->
-  <div id='parent_container'>
-    <div class='content_area'>
-      <div class='sidebar'>
-        <div id='sidebar_content_area'>
-          <div class='sidebar_title'>
-            <h3><strong>Airport Range Finder</strong></h3>
-          </div>
-          <div class='main_text'>
-            <p>The following program allows you to find the distance that an aircraft can travel based on a starting airport in the United States and a range. To start select your initial airport and the range of your aircraft!</p>
-          </div>
-          <div class='main_text'>
-            <p>Select your starting airport</p>
-
-            <select id="sel">
-              <option value="">-- Select --</option>
-            </select>
-          </div>
-          <div class='main_text'>
-            <p>Input and aircraft range in kilometers(km)</p>
-
-            <input type="number" id="range"></input>
-          </div>
-      </div>
-      <div class="main_text">
-        <small>
-          Data Source: 
-          <a href="https://adip.faa.gov/agis/public/#/airportSearch/advanced">FAA ADIP Airport Database</a>
-        </small>
-      </div>
-    </div>
-  
-
-    <!-- Map Container -->
-    <div id='mapContainer'>
-      <!-- mapboxGL map inserted here-->
-    </div>
-  </div>
+</script>
 
 
+  <!--Import JavaScript-->
+  <script src='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script> <!--Import mapboxGL-->
+  <script src="js/scripts.js"></script> <!--Import javaScript file-->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <script src="https://kit.fontawesome.com/28b5fbf04c.js" crossorigin="anonymous"></script>
-  <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-  <script src="js/scripts.js"></script>
-</body>
+  </body>
 </html>
