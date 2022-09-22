@@ -133,51 +133,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY3dob25nIiwiYSI6IjAyYzIwYTJjYTVhMzUxZTVkMzdmY
             map.getCanvas().style.cursor = '';
             popup.remove();
         });
+
     });
 
-
-// async function getLocation(updateSource) {
-//     // Make a GET request to the API and return the location of the ISS.
-//     try {
-//         const response = await fetch(
-//             'http://nycferry.connexionz.net/rtt/public/utility/gtfsrealtime.aspx/tripupdate',
-//             { method: 'GET' }
-//     );
-//     const data = await response.json();
-//     console.log(data);
-//     // Return the location of the ISS as GeoJSON.
-//     // return {
-//     //     'type': 'FeatureCollection',
-//     //     'features': [{
-//     //         'type': 'Feature',
-//     //         'geometry': {
-//     //             'type': 'Point',
-//     //             'coordinates': [longitude, latitude]
-//     //         }
-//     //     }]
-//     // };
-//     } catch (err) {
-//     // If the updateSource interval is defined, clear the interval to stop updating the source.
-//     if (updateSource) clearInterval(updateSource);
-//     throw new Error(err);
-//     }
-
-// }
-
-const api_url = 'http://nycferry.connexionz.net/rtt/public/utility/gtfsrealtime.aspx/tripupdate';
-
-async function getapi(url) {
-    
-    // Storing response
-    const response = await fetch(url);
-    
-    // Storing data in form of JSON
-    // var data = await response.json();
-    // console.log(data);
-    // if (response) {
-    //     hideloader();
-    // }
-    // show(data);
-}
-
-getapi(api_url);
+    var GtfsRealtimeBindings = require('gtfs-realtime-bindings');
