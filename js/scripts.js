@@ -1,3 +1,5 @@
+
+
 // Create inital variables
 var mapCenter = [-73.99,40.75] // Map center locations
 
@@ -21,7 +23,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY3dob25nIiwiYSI6IjAyYzIwYTJjYTVhMzUxZTVkMzdmY
 
         map.addSource('routes', { // Add routes data
             type: 'geojson',
-            data: 'data/routes.geojson'
+            data: 'js/data/routes.geojson'
         })
 
         map.addLayer({ // Load routes data into map
@@ -50,7 +52,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY3dob25nIiwiYSI6IjAyYzIwYTJjYTVhMzUxZTVkMzdmY
 
         map.addSource('stops', { // Load stops data
             type: 'geojson',
-            data: 'data/stops.geojson'
+            data: 'js/data/stops.geojson'
         })
 
         map.addLayer({ // Add stops data to map
@@ -122,8 +124,6 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY3dob25nIiwiYSI6IjAyYzIwYTJjYTVhMzUxZTVkMzdmY
 
         });
 
-
-
         map.on('mouseleave', 'stops-layer', function() {
             map.getCanvas().style.cursor = '';
             popup.remove();
@@ -134,6 +134,92 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY3dob25nIiwiYSI6IjAyYzIwYTJjYTVhMzUxZTVkMzdmY
             popup.remove();
         });
 
-    });
+        // Timeline code //
 
-    var GtfsRealtimeBindings = require('gtfs-realtime-bindings');
+        
+
+        // Load ferry icon
+        map.loadImage(
+            'icons/NYC_Ferry_Vertical-removebg-preview.png',
+            (error, image) => {
+            if (error) throw error;
+             
+            // Add the image to the map style.
+            map.addImage('ferry-icon', image);
+            }
+        );
+
+        // Create array w/ each time stamp
+        var x = 5; //minutes interval
+        const times = []; // time array
+        var tt = 285; // start time
+    
+        // loop to increment the time and push results in array
+        for (var i=0;tt<24*60; i++) {
+            var hh = Math.floor(tt/60); // getting hours of day in 0-24 format
+            var mm = (tt%60); // getting minutes of the hour in 0-55 format
+            times[i] = ((hh)) + ':' + ("0" + mm).slice(-2);
+            tt = tt + x;
+        }
+
+        // function to filter the geojson based on the timeid
+        function filterBy(timestep) {
+            const filters = ['==', 'time_id', timestep];
+
+            console.log(filters)
+            map.setFilter('ships', filters);
+            // Set the label to the time
+            document.getElementById('current-time').textContent = times[timestep];
+        }
+
+        $.getJSON('js/data/stop-times.geojson',jsonCallback);
+
+
+        function jsonCallback(data) {
+    
+            // Create a month property value based on time
+            // used to filter against.
+            // data.features = data.features.map((d) => {
+            //     d.properties.month = new Date(d.properties.time).getMonth();
+            //     return d;
+            // });
+    
+            map.addSource('stop-times', {
+                type: 'geojson',
+                data: data
+            });
+
+            map.addLayer({
+                'id': 'ships',
+                'type': 'symbol',
+                'source': 'stop-times',
+                'layout': {
+                'icon-image': 'ferry-icon',
+                'icon-size': 0.04
+                }
+            });
+    
+            // Set filter to first month of the year
+            // 0 = January
+            filterBy(0);
+    
+            document.getElementById('slider').addEventListener('input', (e) => {
+                const currenttime = parseInt(e.target.value, 10);
+                filterBy(currenttime);
+            });
+        }
+
+
+        
+
+
+
+
+
+
+
+    
+
+
+
+    });
