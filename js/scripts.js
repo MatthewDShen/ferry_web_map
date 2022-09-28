@@ -165,8 +165,6 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY3dob25nIiwiYSI6IjAyYzIwYTJjYTVhMzUxZTVkMzdmY
         // function to filter the geojson based on the timeid
         function filterBy(timestep) {
             const filters = ['==', 'time_id', timestep];
-
-            console.log(filters)
             map.setFilter('ships', filters);
             // Set the label to the time
             document.getElementById('current-time').textContent = times[timestep];
@@ -176,14 +174,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY3dob25nIiwiYSI6IjAyYzIwYTJjYTVhMzUxZTVkMzdmY
 
 
         function jsonCallback(data) {
-    
-            // Create a month property value based on time
-            // used to filter against.
-            // data.features = data.features.map((d) => {
-            //     d.properties.month = new Date(d.properties.time).getMonth();
-            //     return d;
-            // });
-    
+
             map.addSource('stop-times', {
                 type: 'geojson',
                 data: data
