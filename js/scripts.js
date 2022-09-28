@@ -136,8 +136,6 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY3dob25nIiwiYSI6IjAyYzIwYTJjYTVhMzUxZTVkMzdmY
 
         // Timeline code //
 
-        
-
         // Load ferry icon
         map.loadImage(
             'icons/NYC_Ferry_Vertical-removebg-preview.png',
@@ -170,8 +168,9 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY3dob25nIiwiYSI6IjAyYzIwYTJjYTVhMzUxZTVkMzdmY
             document.getElementById('current-time').textContent = times[timestep];
         }
 
-        $.getJSON('js/data/stop-times.geojson',jsonCallback);
 
+
+        $.getJSON('py/stop-times.geojson',jsonCallback);
 
         function jsonCallback(data) {
 
@@ -199,18 +198,4 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY3dob25nIiwiYSI6IjAyYzIwYTJjYTVhMzUxZTVkMzdmY
                 filterBy(currenttime);
             });
         }
-
-
-        
-
-
-
-
-
-
-
-    
-
-
-
     });
